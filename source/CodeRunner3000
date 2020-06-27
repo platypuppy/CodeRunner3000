@@ -1,0 +1,359 @@
+#!/usr/bin/python3.8
+
+import os
+import re
+import multiprocessing
+import sys
+import getopt
+
+def optHelp():
+  print("CodeRunner3000:")
+  print("  Descrtption:")
+  print("    This will compile, run, and test your code for the right output and memory leaks.")
+  print("  Options:")
+  print("    no options:    this will compile and link only")
+  print("    -h, -? --help: help output")
+  print("    -s --style:    check style")
+  print("    -e --exe:      get executable output (compile & link)")
+  print("    -d --diff:     diff output files (does not compile new exe unless -e is givin)")
+  print("    -p --dumpit:   call dumpit on output files (same as -d but checks binary differences)")
+  print("    -m --memory:   run code with valgrind memoryy checker (uses last unless -e)")
+  print("    -x --doxygen:  run doxygen on code")
+  print(" ")
+  print("    --setup:       set up the directory with nessary folders and files")
+  print("    -c --clear:    clear extra files (all in _tOut & .o and exe)")
+  print("\n\n")
+  print("  Test Options:")
+  print("    -t --test:     set what test you want to run")
+  sys.exit(4)
+
+
+def Setup():
+  os.system("mkdir gnu")
+  os.system("mkdir _mOut")
+  os.system("mkdir _tOut")
+  os.system("mkdir _in")
+  os.system("touch files.txt")
+  file = open("files.txt", "w")
+  file.write("CODE:\n\nSTYLE:\n\nIN:\n\nCFLAGS:\n\nLFLAGS:\n\nCOMPILER:\n\n")
+  file.close()
+  sys.exit(3)
+  
+style = False
+exe = False
+diff = False
+dumpit = False
+memory = False
+doxygen = False
+setup = False
+clear = False
+tests = []
+
+try:
+  opts, args = getopt.getopt(sys.argv[1:], ":h?sedpmcxt:", ["help", "style", "exe", "diff", "dumpit", "memory", "doxygen", "setup", "tests", "clear"])
+except getopt.GetpotError as err:
+  print(err)
+  optHelp();
+  sys.exit(2)
+
+wasOpt = False
+for opt, arg in opts:
+  if opt == "-h" or opt == "--help" or opt == "-?":
+    optHelp()
+    wasOpt = True
+  elif opt == "-c" or opt == "--clear":
+    clear = True
+    wasOpt = True
+  elif opt == "-s" or opt == "--style":
+    style = True
+    wasOpt = True
+  elif opt == "-e" or opt == "--exe":
+    exe = True
+    wasOpt = True
+  elif opt == "-d" or opt == "--diff":
+    diff = True
+    wasOpt = True
+  elif opt == "-p" or opt == "--dumpit":
+    dumpit = True
+    wasOpt = True
+  elif opt == "-m" or opt == "--memory":
+    memory = True
+    wasOpt = True
+  elif opt == "-x" or opt == "--doxygen":
+    doxygen = True
+    wasOpt = True
+  elif opt == "--setup":
+    setup = True
+    wasOpt = True
+  elif opt == "-t" or opt == "--tests":
+    wasOpt = True
+    ars = arg.split(",")
+    for a in ars:
+      tests.append(a)
+if wasOpt == False:
+  exe = True
+
+if setup == True:
+  Setup()
+
+try:
+  files = open("files.txt", "r")
+except IOError:
+  print("files.txt failed to open")
+  print("please run --setup \n\n")
+  optHelp()
+  
+compile = []
+style = []
+compile_flags = " "
+link_flags = " "
+compiler = ""
+
+#print(files)
+
+state = 0
+
+for line in files:
+  line_str = line.strip()
+  
+  if not(line_str == "CODE:" or line_str == "STYLE:" or line_str == "IN:" or line_str == "CFLAGS:" or line_str == "LFLAGS:" or line_str == "COMPILER:" or line_str == ""):
+    if (state == 1):
+      compile.append(line_str)
+    elif (state == 2):
+      style.append(line_str)
+#    elif (state == 3):
+    elif (state == 4):
+      compile_flags += (line_str + " ")
+    elif (state == 5):
+      link_flags += (line_str + " ")
+    elif (state == 6):
+      compiler = line_str
+  elif (line_str == "CODE:"):
+    state = 1
+  elif (line_str == "STYLE:"):
+    state = 2
+  elif (line_str == "IN:"):
+    state = 3
+  elif (line_str == "CFLAGS:"):
+    state = 4
+  elif (line_str == "LFLAGS:"):
+    state = 5
+  elif (line_str == "COMPILER:"):
+    state = 6
+
+files.close()
+
+#print(compile)
+#print(style)
+#print(compile_flags)
+#print(link_flags)
+#print(compiler)
+
+def MultiProcess(command):
+  print(command)
+
+def ClearFiles():
+  command = "rm -r latex _tOut/* gnu/*"
+  print(command)
+  proc = multiprocessing.Process(target=os.system, args=(command,))
+  proc.start()
+  proc.join()
+
+  sys.exit(0)
+
+
+def CompileLink():
+  if compile == []:
+    print("No files to compile")
+    sys.exit(6)
+  print("Compiling")
+  
+  processes = []
+  objects = " "
+  commands = []
+  
+  for codeFile in compile:
+    #print("Compiling: " + codeFile)
+    handle = re.match(r'^([^.]*).*$', codeFile)
+    objects += "gnu/" + handle.group(1) + ".o "
+    command = "" + compiler + " " + compile_flags + " -c " + codeFile + " -o " + "gnu/" + handle.group(1) + ".o"
+    commands.append([command, ""])
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    processes.append(proc)
+    
+  for proc in processes:
+    print(proc.join())
+    #  print("end")
+
+  print("Linking")
+    
+  objects = compiler + " " + objects + " -o gnu/gnu " + link_flags
+  
+  print(objects)
+  
+  proc = multiprocessing.Process(target=os.system, args=(objects,))
+  proc.start()
+  proc.join()
+
+valgrind = "valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck "
+  
+def CheckMemory():
+  if tests == []:
+    print(valgrind + "./gnu/gnu ")
+    os.system(valgrind + "./gnu/gnu ")
+  else:
+    procs = []
+    for test in tests:
+      copyT = test.replace(" ", "_")
+      command = valgrind + "./gnu/gnu " + test + " > _tOut/mem-" + copyT + ".txt 2> _tOut/memerr-" + copyT + ".merr"
+      print(command)
+      proc = multiprocessing.Process(target=os.system, args=(command,))
+      proc.start()
+      procs.append(proc)
+    for proc in procs:
+      proc.join()
+
+    procs = []
+    for test in tests:
+      copyT = test.replace(" ", "_")
+      command = "cat _tOut/memerr-" + copyT + ".merr"
+      print(command)
+      proc = multiprocessing.Process(target=os.system, args=(command,))
+      proc.start()
+      procs.append(proc)
+    for proc in procs:
+      proc.join()
+      
+
+ranTests = False
+def RunTests():
+  global ranTests
+  if (ranTests):
+    return
+
+  ranTests = True
+  if tests == []:
+    print("./gnu/gnu ")
+    os.system("./gnu/gnu ")
+  else:
+    procs = []
+    for test in tests:
+      copyT = test.replace(" ", "_")
+      command = "./gnu/gnu " + test + " > _tOut/out-" + copyT  + ".txt"
+      print(command)
+      proc = multiprocessing.Process(target=os.system, args=(command,))
+      proc.start()
+      procs.append(proc)
+    for proc in procs:
+      proc.join()
+
+def DiffTests():
+  RunTests()
+
+  procs = []
+  for test in tests:
+    copyT = test.replace(" ", "_")
+    command = "diff _mOut/out-" + copyT + ".txt _tOut/out-" + copyT + ".txt > _tOut/diff" + copyT + ".df"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+  for proc in procs:
+    proc.join()
+
+  procs = []
+  for test in tests:
+    copyT = "%s" % test
+    command = "cat _tOut/diff" + copyT.replace(" ", "_") + ".df"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+  for proc in procs:
+    proc.join()
+
+def DumpTests():
+  RunTests()
+
+  procs = []
+  for test in tests:
+    copyT = test.replace(" ", "_")
+    command = "dumpit _mOut/out-" + copyT + ".txt > _mOut/dump" + copyT + ".dp"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+    command = "dumpit _tOut/out-" + copyT + ".txt > _tOut/dump" + copyT + ".dp"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+
+  for proc in procs:
+    proc.join()
+
+  procs = []
+  for test in tests:
+    copyT = "%s" % test
+    command = "diff _mOut/dump" + copyT + ".dp _tOut/dump" + copyT + ".dp > _tOut/dump" + copyT + ".df"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+  for proc in procs:
+    proc.join()
+
+  procs = []
+  for test in tests:
+    copyT = "%s" % test
+    command = "cat _tOut/dump" + copyT.replace(" ", "_") + ".df"
+    print(command)
+    proc = multiprocessing.Process(target=os.system, args=(command,))
+    proc.start()
+    procs.append(proc)
+
+  for proc in procs:
+    proc.join()
+
+if clear:
+  ClearFiles()
+#if style:
+#  RunStyle()
+if exe:
+  CompileLink()
+if memory:
+  CheckMemory()
+if diff:
+  DiffTests()
+if dumpit:
+  DumpTests()
+#if doxygen:
+
+
+diff = False
+dumpit = False
+memory = False
+doxygen = False
+setup = False
+tests = []
+
+
+#================
+# TODO
+# test valgrind output
+# store default tests in file
+# end at first failed
+# cancel others who are after failed one
+# only start no more than 24 processes at a time
+
+
+# capture compile to std err
+# check if files is more than 1 byte
+#   if so kill all processes and cat it out

@@ -1,0 +1,167 @@
+# Macros ========================================
+
+CC=gcc
+CFLAGS=-Wall -Wextra -std=c11 -pedantic -g -O2 -Werror
+LFLAGS=-lpthread
+EXE=cachelist
+OBJS=cachelist.o driver.o PRNG.o
+ERASE=rm
+MASTER=_mOut/
+TEST=_tOut/
+
+
+# TARGETS ========================================
+
+all : $(EXE) diff Dumpit
+	
+$(EXE) : $(OBJS) makefile
+	$(CC) $(OBJS) -o $(EXE) $(LFLAGS) 
+
+driver.o : driver.c cachelist.h PRNG.h makefile
+	$(CC) $(CFLAGS) -c driver.c -o driver.o
+
+cachelist.o : cachelist.c cachelist.h makefile
+	$(CC) $(CFLAGS) -c cachelist.c -o cachelist.o
+
+PRNG.o : PRNG.c PRNG.h makefile
+	$(CC) $(CFLAGS) -c PRNG.c -o PRNG.o
+
+clean :
+	$(ERASE) -r latex $(OBJS) $(EXE) $(TEST)*
+
+$(TEST)output-add_front.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 1 > /dev/null
+	./$(EXE) 1 > $(TEST)output-add_front.txt
+
+$(TEST)output-add_end.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 2 > /dev/null
+	./$(EXE) 2 > $(TEST)output-add_end.txt
+
+$(TEST)output-remove1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 3 > /dev/null
+	./$(EXE) 3 > $(TEST)output-remove1.txt
+
+$(TEST)output-remove2.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 4 > /dev/null
+	./$(EXE) 4 > $(TEST)output-remove2.txt
+
+$(TEST)output-insert_before1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 5 > /dev/null
+	./$(EXE) 5 > $(TEST)output-insert_before1.txt
+
+$(TEST)output-insert_after1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 6 > /dev/null
+	./$(EXE) 6 > $(TEST)output-insert_after1.txt
+
+$(TEST)output-find1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 7 > /dev/null
+	./$(EXE) 7 > $(TEST)output-find1.txt
+
+$(TEST)output-find2.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 8 > /dev/null
+	./$(EXE) 8 > $(TEST)output-find2.txt
+
+$(TEST)output-find_stress1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 9 > /dev/null
+	./$(EXE) 9 > $(TEST)output-find_stress1.txt
+
+$(TEST)output-find_stress2.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 10 > /dev/null
+	./$(EXE) 10 > $(TEST)output-find_stress2.txt
+
+$(TEST)output-test_stress1.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 11 > /dev/null
+	./$(EXE) 11 > $(TEST)output-stress1.txt
+
+$(TEST)output-test_a_lot.txt : $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) 12 > /dev/null
+	./$(EXE) 12 > $(TEST)output-test_a_lot.txt
+
+$(TEST)output-all.txt: $(EXE) makefile
+	valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck ./$(EXE) > /dev/null
+	./$(EXE) > $(TEST)output-all.txt
+
+diff : $(TEST)output-add_front.txt $(TEST)output-add_end.txt $(TEST)output-remove1.txt $(TEST)output-remove2.txt $(TEST)output-insert_before1.txt $(TEST)output-insert_after1.txt $(TEST)output-find1.txt $(TEST)output-find2.txt $(TEST)output-find_stress1.txt $(TEST)output-find_stress2.txt $(TEST)output-test_stress1.txt $(TEST)output-test_a_lot.txt $(TEST)output-all.txt makefile
+	diff $(TEST)output-add_front.txt $(MASTER)output-add_front.txt
+	diff $(TEST)output-add_end.txt $(MASTER)output-add_end.txt
+	diff $(TEST)output-remove1.txt $(MASTER)output-remove1.txt
+	diff $(TEST)output-remove2.txt $(MASTER)output-remove2.txt
+	diff $(TEST)output-insert_before1.txt $(MASTER)output-insert_before1.txt
+	diff $(TEST)output-insert_after1.txt $(MASTER)output-insert_after1.txt
+	diff $(TEST)output-find1.txt $(MASTER)output-find1.txt
+	diff $(TEST)output-find2.txt $(MASTER)output-find2.txt
+	diff $(TEST)output-find_stress1.txt $(MASTER)output-find_stress1.txt
+	diff $(TEST)output-find_stress2.txt $(MASTER)output-find_stress2.txt
+	diff $(TEST)output-stress1.txt $(MASTER)output-stress1.txt
+	diff $(TEST)output-a_lot.txt $(MASTER)output-a_lot.txt
+	diff $(TEST)output-all.txt $(MASTER)output-all.txt
+
+$(TEST)dump1.txt : $(TEST)output-add_front.txt
+	dumpit $(TEST)output-add_front.txt > $(TEST)dump1.txt
+	dumpit $(MASTER)output-add_front.txt > $(MASTER)dump1.txt
+
+$(TEST)dump2.txt : $(TEST)output-add_end.txt
+	dumpit $(TEST)output-add_end.txt > $(TEST)dump2.txt
+	dumpit $(MASTER)output-add_end.txt > $(MASTER)dump2.txt
+
+$(TEST)dump3.txt : $(TEST)output-remove1.txt
+	dumpit $(TEST)output-remove1.txt > $(TEST)dump3.txt
+	dumpit $(MASTER)output-remove1.txt > $(MASTER)dump3.txt
+
+$(TEST)dump4.txt : $(TEST)output-remove2.txt
+	dumpit $(TEST)output-remove2.txt > $(TEST)dump4.txt
+	dumpit $(MASTER)output-remove2.txt > $(MASTER)dump4.txt
+
+$(TEST)dump5.txt : $(TEST)output-insert_before1.txt
+	dumpit $(TEST)output-insert_before1.txt > $(TEST)dump5.txt
+	dumpit $(MASTER)output-insert_before1.txt > $(MASTER)dump5.txt
+
+$(TEST)dump6.txt : $(TEST)output-insert_after1.txt
+	dumpit $(TEST)output-insert_after1.txt > $(TEST)dump6.txt
+	dumpit $(MASTER)output-insert_after1.txt > $(MASTER)dump6.txt
+
+$(TEST)dump7.txt : $(TEST)output-find1.txt
+	dumpit $(TEST)output-find1.txt > $(TEST)dump7.txt
+	dumpit $(MASTER)output-find1.txt > $(MASTER)dump7.txt
+
+$(TEST)dump8.txt : $(TEST)output-find2.txt
+	dumpit $(TEST)output-find2.txt > $(TEST)dump8.txt
+	dumpit $(MASTER)output-find2.txt > $(MASTER)dump8.txt
+
+$(TEST)dump9.txt : $(TEST)output-find_stress1.txt
+	dumpit $(TEST)output-find_stress1.txt > $(TEST)dump9.txt
+	dumpit $(MASTER)output-find_stress1.txt > $(MASTER)dump9.txt
+
+$(TEST)dump10.txt : $(TEST)output-find_stress2.txt
+	dumpit $(TEST)output-find_stress2.txt > $(TEST)dump10.txt
+	dumpit $(MASTER)output-find_stress2.txt > $(MASTER)dump10.txt
+
+$(TEST)dump11.txt : $(TEST)output-test_stress1.txt
+	dumpit $(TEST)output-find_stress1.txt > $(TEST)dump11.txt
+	dumpit $(MASTER)output-find_stress1.txt > $(MASTER)dump11.txt
+
+$(TEST)dump12.txt : $(TEST)output-test_a_lot.txt
+	dumpit $(TEST)output-test_a_lot.txt > $(TEST)dump12.txt
+	dumpit $(MASTER)output-test_a_lot.txt > $(MASTER)dump12.txt
+
+$(TEST)dump-all.txt : $(TEST)output-all.txt
+	dumpit $(TEST)output-all.txt > $(TEST)dump-all.txt
+	dumpit $(MASTER)output-all.txt > $(MASTER)dump-all.txt
+
+Dumpit : $(TEST)dump1.txt $(TEST)dump2.txt $(TEST)dump3.txt $(TEST)dump4.txt $(TEST)dump5.txt $(TEST)dump6.txt $(TEST)dump7.txt $(TEST)dump8.txt $(TEST)dump9.txt $(TEST)dump10.txt $(TEST)dump11.txt $(TEST)dump12.txt $(TEST)dump-all.txt makefile
+	diff $(TEST)dump1.txt $(MASTER)dump1.txt
+	diff $(TEST)dump2.txt $(MASTER)dump2.txt
+	diff $(TEST)dump3.txt $(MASTER)dump3.txt
+	diff $(TEST)dump4.txt $(MASTER)dump4.txt
+	diff $(TEST)dump5.txt $(MASTER)dump5.txt
+	diff $(TEST)dump6.txt $(MASTER)dump6.txt
+	diff $(TEST)dump7.txt $(MASTER)dump7.txt
+	diff $(TEST)dump8.txt $(MASTER)dump8.txt
+	diff $(TEST)dump9.txt $(MASTER)dump9.txt
+	diff $(TEST)dump10.txt $(MASTER)dump10.txt
+	diff $(TEST)dump11.txt $(MASTER)dump11.txt
+	diff $(TEST)dump12.txt $(MASTER)dump12.txt
+	diff $(TEST)dump-all.txt $(MASTER)dump-all.txt
+
+style: makefile
+	tablen cachelist.c
