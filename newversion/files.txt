@@ -1,0 +1,18 @@
+CODE:
+cachelist.c
+driver.c
+PRNG.c
+
+STYLE:
+cachelist.c
+
+IN:
+
+CFLAGS:
+-g -O2 -Werror -pipe -Wall -Wextra -std=c11 -pedantic -Werror
+
+LFLAGS:
+-lpthread
+
+COMPILER:
+gcc
