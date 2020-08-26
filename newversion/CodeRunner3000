@@ -199,8 +199,7 @@ def CompileLink():
   proc.join()
 
 valgrind = "valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck "
-
-# comment
+  
 def CheckMemory():
   if tests == []:
     print(valgrind + "./gnu/gnu ")
@@ -397,3 +396,6 @@ tests = []
 #   if so kill all processes and cat it out
 
 # support multiple exes, drivers, 
+
+
+# killall valgrind

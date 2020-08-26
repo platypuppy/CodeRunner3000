@@ -10,14 +10,14 @@ def optHelp():
   print("CodeRunner3000:")
   print("  Descrtption:")
   print("    This will compile, run, and test your code for the right output and memory leaks.")
-  print("\n  Options:")
+  print("  Options:")
   print("    no options:    this will compile and link only")
   print("    -h, -? --help: help output")
   print("    -s --style:    check style")
   print("    -e --exe:      get executable output (compile & link)")
   print("    -d --diff:     diff output files (does not compile new exe unless -e is givin)")
   print("    -p --dumpit:   call dumpit on output files (same as -d but checks binary differences)")
-  print("    -m --memory:   run code with valgrind memory checker (uses last unless -e)")
+  print("    -m --memory:   run code with valgrind memoryy checker (uses last unless -e)")
   print("    -x --doxygen:  run doxygen on code")
   print(" ")
   print("    --setup:       set up the directory with nessary folders and files")
@@ -25,7 +25,6 @@ def optHelp():
   print("\n\n")
   print("  Test Options:")
   print("    -t --test:     set what test you want to run")
-  print("\ncreated by Adrian Kacmarcik")
   sys.exit(4)
 
 
@@ -52,7 +51,7 @@ tests = []
 
 try:
   opts, args = getopt.getopt(sys.argv[1:], ":h?sedpmcxt:", ["help", "style", "exe", "diff", "dumpit", "memory", "doxygen", "setup", "tests", "clear"])
-except getopt.GetoptError as err:
+except getopt.GetpotError as err:
   print(err)
   optHelp();
   sys.exit(2)
@@ -185,7 +184,7 @@ def CompileLink():
     processes.append(proc)
     
   for proc in processes:
-    proc.join()
+    print(proc.join())
     #  print("end")
 
   print("Linking")
@@ -199,8 +198,7 @@ def CompileLink():
   proc.join()
 
 valgrind = "valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck "
-
-# comment
+  
 def CheckMemory():
   if tests == []:
     print(valgrind + "./gnu/gnu ")
