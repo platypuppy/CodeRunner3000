@@ -1,0 +1,154 @@
+/media/platypuppy/2069545212/BACKUPS/Save0/home/platypuppy/GitHub/CodeRunner3000/
+├── README.md
+└── source
+    ├── CodeRunner3000
+    ├── CodeRunner3000.bkup
+    ├── CodeRunner3000~
+    ├── Doxyfile
+    ├── PRNG.c
+    ├── PRNG.h
+    ├── TURNIN
+    │   ├── HW1.zip
+    │   ├── cachelist.c
+    │   ├── refman.pdf
+    │   └── typescript
+    ├── _in
+    ├── _mOut
+    │   ├── Doxyfile
+    │   ├── dump-all.txt
+    │   ├── dump.dp
+    │   ├── dump1.dp
+    │   ├── dump1.txt
+    │   ├── dump10.dp
+    │   ├── dump10.txt
+    │   ├── dump11.dp
+    │   ├── dump11.txt
+    │   ├── dump12.dp
+    │   ├── dump12.txt
+    │   ├── dump2.dp
+    │   ├── dump2.txt
+    │   ├── dump3.dp
+    │   ├── dump3.txt
+    │   ├── dump4.dp
+    │   ├── dump4.txt
+    │   ├── dump5.dp
+    │   ├── dump5.txt
+    │   ├── dump6.dp
+    │   ├── dump6.txt
+    │   ├── dump7.dp
+    │   ├── dump7.txt
+    │   ├── dump8.dp
+    │   ├── dump8.txt
+    │   ├── dump9.dp
+    │   ├── dump9.txt
+    │   ├── out-.txt
+    │   ├── out-1.txt
+    │   ├── out-10.txt
+    │   ├── out-11.txt
+    │   ├── out-12.txt
+    │   ├── out-2.txt
+    │   ├── out-3.txt
+    │   ├── out-4.txt
+    │   ├── out-5.txt
+    │   ├── out-6.txt
+    │   ├── out-7.txt
+    │   ├── out-8.txt
+    │   └── out-9.txt
+    ├── _tOut
+    │   ├── diff.df
+    │   ├── diff1.df
+    │   ├── diff10.df
+    │   ├── diff11.df
+    │   ├── diff12.df
+    │   ├── diff2.df
+    │   ├── diff3.df
+    │   ├── diff4.df
+    │   ├── diff5.df
+    │   ├── diff6.df
+    │   ├── diff7.df
+    │   ├── diff8.df
+    │   ├── diff9.df
+    │   ├── dump.df
+    │   ├── dump.dp
+    │   ├── dump1.df
+    │   ├── dump1.dp
+    │   ├── dump10.df
+    │   ├── dump10.dp
+    │   ├── dump11.df
+    │   ├── dump11.dp
+    │   ├── dump12.df
+    │   ├── dump12.dp
+    │   ├── dump2.df
+    │   ├── dump2.dp
+    │   ├── dump3.df
+    │   ├── dump3.dp
+    │   ├── dump4.df
+    │   ├── dump4.dp
+    │   ├── dump5.df
+    │   ├── dump5.dp
+    │   ├── dump6.df
+    │   ├── dump6.dp
+    │   ├── dump7.df
+    │   ├── dump7.dp
+    │   ├── dump8.df
+    │   ├── dump8.dp
+    │   ├── dump9.df
+    │   ├── dump9.dp
+    │   ├── mem-.txt
+    │   ├── mem-1.txt
+    │   ├── mem-10.txt
+    │   ├── mem-11.txt
+    │   ├── mem-12.txt
+    │   ├── mem-2.txt
+    │   ├── mem-3.txt
+    │   ├── mem-4.txt
+    │   ├── mem-5.txt
+    │   ├── mem-6.txt
+    │   ├── mem-7.txt
+    │   ├── mem-8.txt
+    │   ├── mem-9.txt
+    │   ├── memerr-.merr
+    │   ├── memerr-1.merr
+    │   ├── memerr-10.merr
+    │   ├── memerr-11.merr
+    │   ├── memerr-12.merr
+    │   ├── memerr-2.merr
+    │   ├── memerr-3.merr
+    │   ├── memerr-4.merr
+    │   ├── memerr-5.merr
+    │   ├── memerr-6.merr
+    │   ├── memerr-7.merr
+    │   ├── memerr-8.merr
+    │   ├── memerr-9.merr
+    │   ├── out-.txt
+    │   ├── out-1.txt
+    │   ├── out-10.txt
+    │   ├── out-11.txt
+    │   ├── out-12.txt
+    │   ├── out-2.txt
+    │   ├── out-3.txt
+    │   ├── out-4.txt
+    │   ├── out-5.txt
+    │   ├── out-6.txt
+    │   ├── out-7.txt
+    │   ├── out-8.txt
+    │   └── out-9.txt
+    ├── cachelist.c
+    ├── cachelist.c~
+    ├── cachelist.h
+    ├── driver.c
+    ├── files-o.txt
+    ├── files.txt
+    ├── files.txt~
+    ├── gnu
+    │   ├── PRNG.o
+    │   ├── cachelist.o
+    │   ├── driver.o
+    │   └── gnu
+    ├── makefile
+    ├── makefile~
+    ├── output.txt
+    ├── sample-driver.c
+    └── typescript
+
+6 directories, 145 files
