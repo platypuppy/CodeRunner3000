@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+#!/usr/bin/python3
 
 import os
 import re
@@ -10,20 +10,22 @@ def optHelp():
   print("CodeRunner3000:")
   print("  Descrtption:")
   print("    This will compile, run, and test your code for the right output and memory leaks.")
-  print("  Options:")
+  print("\n  Options:")
   print("    no options:    this will compile and link only")
   print("    -h, -? --help: help output")
   print("    -s --style:    check style")
   print("    -e --exe:      get executable output (compile & link)")
   print("    -d --diff:     diff output files (does not compile new exe unless -e is givin)")
   print("    -p --dumpit:   call dumpit on output files (same as -d but checks binary differences)")
-  print("    -m --memory:   run code with valgrind memoryy checker (uses last unless -e)")
+  print("    -m --memory:   run code with valgrind memory checker (uses last unless -e)")
   print("    -x --doxygen:  run doxygen on code")
   print(" ")
   print("    --setup:       set up the directory with nessary folders and files")
+  print("    -c --clear:    clear extra files (all in _tOut & .o and exe)")
   print("\n\n")
   print("  Test Options:")
   print("    -t --test:     set what test you want to run")
+  print("\ncreated by Adrian Kacmarcik")
   sys.exit(4)
 
 
@@ -45,11 +47,12 @@ dumpit = False
 memory = False
 doxygen = False
 setup = False
+clear = False
 tests = []
 
 try:
-  opts, args = getopt.getopt(sys.argv[1:], ":h?sedpmxt:", ["help", "style", "exe", "diff", "dumpit", "memory", "doxygen", "setup", "tests"])
-except getopt.GetpotError as err:
+  opts, args = getopt.getopt(sys.argv[1:], ":h?sedpmcxt:", ["help", "style", "exe", "diff", "dumpit", "memory", "doxygen", "setup", "tests", "clear"])
+except getopt.GetoptError as err:
   print(err)
   optHelp();
   sys.exit(2)
@@ -58,6 +61,9 @@ wasOpt = False
 for opt, arg in opts:
   if opt == "-h" or opt == "--help" or opt == "-?":
     optHelp()
+    wasOpt = True
+  elif opt == "-c" or opt == "--clear":
+    clear = True
     wasOpt = True
   elif opt == "-s" or opt == "--style":
     style = True
@@ -144,6 +150,18 @@ files.close()
 #print(link_flags)
 #print(compiler)
 
+def MultiProcess(command):
+  print(command)
+
+def ClearFiles():
+  command = "rm -r latex _tOut/* gnu/*"
+  print(command)
+  proc = multiprocessing.Process(target=os.system, args=(command,))
+  proc.start()
+  proc.join()
+
+  sys.exit(0)
+
 
 def CompileLink():
   if compile == []:
@@ -153,12 +171,14 @@ def CompileLink():
   
   processes = []
   objects = " "
+  commands = []
   
   for codeFile in compile:
     #print("Compiling: " + codeFile)
     handle = re.match(r'^([^.]*).*$', codeFile)
     objects += "gnu/" + handle.group(1) + ".o "
     command = "" + compiler + " " + compile_flags + " -c " + codeFile + " -o " + "gnu/" + handle.group(1) + ".o"
+    commands.append([command, ""])
     print(command)
     proc = multiprocessing.Process(target=os.system, args=(command,))
     proc.start()
@@ -179,7 +199,8 @@ def CompileLink():
   proc.join()
 
 valgrind = "valgrind -q --leak-check=full --show-reachable=yes --tool=memcheck "
-  
+
+# comment
 def CheckMemory():
   if tests == []:
     print(valgrind + "./gnu/gnu ")
@@ -192,10 +213,23 @@ def CheckMemory():
       print(command)
       proc = multiprocessing.Process(target=os.system, args=(command,))
       proc.start()
-      procs.append(proc)
-    for proc in procs:
-      proc.join()
+      procs.append([proc, "_tOut/memerr-" + copyT + ".merr"])
 
+    terminate = False
+    for proc in procs:
+      if terminate == True:
+        proc[0].terminate()
+        
+      proc[0].join()
+      if(not(os.stat(proc[1]).st_size == 0) and not terminate):
+        print("error")
+        terminate = True
+        command = "cat " + proc[1]
+        print(command)
+        os.system(command,)
+      
+    if terminate == True:
+      sys.exit(7)
     procs = []
     for test in tests:
       copyT = test.replace(" ", "_")
@@ -240,10 +274,22 @@ def DiffTests():
     print(command)
     proc = multiprocessing.Process(target=os.system, args=(command,))
     proc.start()
-    procs.append(proc)
+    procs.append([proc, "_tOut/diff" + copyT + ".df"])
 
+  terminate = False
   for proc in procs:
-    proc.join()
+    if terminate == True:
+      proc[0].terminate()
+    proc[0].join()
+    if(not(os.stat(proc[1]).st_size == 0) and not terminate):
+      print("error")
+      terminate = True
+      command = "cat " + proc[1]
+      print(command)
+      os.system(command,)
+        
+  if terminate == True:
+    sys.exit(7)
 
   procs = []
   for test in tests:
@@ -286,10 +332,22 @@ def DumpTests():
     print(command)
     proc = multiprocessing.Process(target=os.system, args=(command,))
     proc.start()
-    procs.append(proc)
+    procs.append([proc, "_tOut/dump" + copyT + ".df"])
 
+  terminate = False
   for proc in procs:
-    proc.join()
+    if terminate == True:
+      proc[0].terminate()
+    proc[0].join()
+    if(not(os.stat(proc[1]).st_size == 0) and not terminate):
+      print("error")
+      terminate = True
+      command = "cat " + proc[1]
+      print(command)
+      os.system(command,)
+      
+  if terminate == True:
+    sys.exit(7)
 
   procs = []
   for test in tests:
@@ -302,7 +360,9 @@ def DumpTests():
 
   for proc in procs:
     proc.join()
-    
+
+if clear:
+  ClearFiles()
 #if style:
 #  RunStyle()
 if exe:
@@ -326,7 +386,6 @@ tests = []
 
 #================
 # TODO
-# test valgrind output
 # store default tests in file
 # end at first failed
 # cancel others who are after failed one
@@ -336,3 +395,5 @@ tests = []
 # capture compile to std err
 # check if files is more than 1 byte
 #   if so kill all processes and cat it out
+
+# support multiple exes, drivers, 
